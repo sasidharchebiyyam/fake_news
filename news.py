@@ -1,8 +1,6 @@
 import streamlit as st
-import pandas as pd
 import requests
 import re
-import datetime
 
 # Replace with your actual SerpApi API key
 SERPAPI_API_KEY = 'YOUR_SERPAPI_API_KEY'
@@ -17,7 +15,6 @@ accuracy = 0.88  # Placeholder for model accuracy.
 
 # ----------------------- Prediction -----------------------
 def predict_news(text):
-    # Basic placeholder logic for fake news detection
     fake_keywords = ["fake", "hoax", "scam", "rumor", "unverified"]
     real_keywords = ["real", "verified", "true", "authentic"]
     
@@ -40,48 +37,6 @@ def fetch_news_from_url(url):
         st.error(f"Error processing URL content: {e}")
         return None
 
-# ----------------------- Real-time Fact Checking (Using SerpApi) -----------------------
-def get_correct_answer_from_google(query):
-    # Use SerpApi to get real-time search results
-    search_url = f"https://serpapi.com/search?q={query}&api_key={SERPAPI_API_KEY}"
-
-    try:
-        response = requests.get(search_url)
-        data = response.json()
-
-        if 'organic_results' in data:
-            top_result = data['organic_results'][0]  # Get the top search result
-            title = top_result['title']
-            link = top_result['link']
-            snippet = top_result['snippet']
-            return title, link, snippet
-        else:
-            return "No relevant search results found.", "", ""
-
-    except Exception as e:
-        return f"Error during web search: {e}", "", ""
-
-# ----------------------- Real-time Fact Checking -----------------------
-def check_real_time_facts(text):
-    results = {}
-    public_interest_keywords = [
-        "prime minister of india", "capital of india", "capital of andhra pradesh",
-        "current year", "cricket world cup winner", "president of india",
-        "chief minister of andhra pradesh", "major earthquake today",
-        "stock market today", "weather in vizianagaram"
-    ]
-
-    for keyword in public_interest_keywords:
-        if keyword in text.lower():
-            # Get correct answer from Google using SerpApi
-            correct_answer_title, correct_answer_link, correct_answer_snippet = get_correct_answer_from_google(f"what is the {keyword}")
-            results[f"Real-time check for '{keyword}'"] = f"Correct Answer: {correct_answer_title} - {correct_answer_link}\n{correct_answer_snippet}"
-
-    if not results:
-        results["Real-time Analysis"] = "No specific public interest keywords detected."
-
-    return results
-
 # ----------------------- User Input -----------------------
 user_input = st.text_area("Enter text or a news URL for analysis:")
 
@@ -100,44 +55,21 @@ if st.button("Analyze"):
 
         with st.spinner("Analyzing..."):
             prediction, conf = predict_news(news_text)
-            real_time_check_results = check_real_time_facts(news_text)
 
+        # Show fake or real prediction
         st.subheader("Fake News Detection Result:")
         if prediction == "FAKE":
             st.error(f"⚠ Likely FAKE with confidence: {conf:.2f}")
-            # Show the correct answer from Google if the news is fake
-            st.subheader("Correct Answer (from Google):")
-            for claim, result in real_time_check_results.items():
-                st.write(f"- *{claim}:* {result}")
         else:
             st.success(f"✅ Likely REAL with confidence: {conf:.2f}")
         st.write(f"Confidence Score: {conf:.2f}")
         st.caption(f"Model Accuracy (Estimated): {accuracy:.2f}%")
 
-        if real_time_check_results:
-            st.subheader("Real-time Fact Check:")
-            for claim, result in real_time_check_results.items():
-                st.write(f"- *{claim}:*")
-                st.markdown(f"<div style='padding-left: 10px;'>{result}</div>", unsafe_allow_html=True)
-        else:
-            st.info("No specific public interest claims detected.")
-
-        if st.checkbox("Save Analysis"):
-            output_df = pd.DataFrame({
-                "Input": [user_input],
-                "Fake News Prediction": [prediction],
-                "Confidence": [conf],
-                "Real-time Fact Check": [real_time_check_results if real_time_check_results else "No checks"]
-            })
-            output_df.to_csv("analysis_result.csv", index=False)
-            st.success("Analysis saved to analysis_result.csv")
-
 # ----------------------- Sidebar -----------------------
 st.sidebar.header("About")
 st.sidebar.info(
-    "This tool detects fake news and verifies public claims using a basic model and web search.\n\n"
+    "This tool detects fake news using a basic model.\n\n"
     "*Note:*\n"
-    "- Fact-checking depends on search results.\n"
-    "- Basic model: not highly accurate.\n"
+    "- The model is a basic placeholder and is not highly accurate.\n"
     "- Always cross-check from trusted sources."
 )

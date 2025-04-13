@@ -1,5 +1,5 @@
-streamlit==1.19.0
-scikit-learn==1.1.2
-requests==2.28.1
+streamlit==1.15.0
 pandas==1.5.3
-serpapi==2.1.0
+requests==2.28.2
+beautifulsoup4==4.11.1
+serpapi==2.0.0
