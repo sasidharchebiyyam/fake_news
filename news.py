@@ -4,6 +4,9 @@ import requests
 import re
 import datetime
 
+# Replace with your actual SerpApi API key
+SERPAPI_API_KEY = 'YOUR_SERPAPI_API_KEY'
+
 st.set_page_config(page_title="Real-time Fake News & Fact Checker", layout="wide")
 st.title("🌐 Real-time Fake News & Fact Checker")
 st.write("Analyze text or URLs and attempt to verify public interest claims with real-time information.")
@@ -37,28 +40,36 @@ def fetch_news_from_url(url):
         st.error(f"Error processing URL content: {e}")
         return None
 
-# ----------------------- Real-time Fact Checking -----------------------
+# ----------------------- Real-time Fact Checking (Using SerpApi) -----------------------
 def check_real_time_facts(text):
     results = {}
-    public_interest_keywords = ["prime minister of india", "capital of india", "capital of andhra pradesh",
-                               "current year", "cricket world cup winner", "president of india",
-                               "chief minister of andhra pradesh", "major earthquake today",
-                               "stock market today", "weather in vizianagaram"]
+    public_interest_keywords = [
+        "prime minister of india", "capital of india", "capital of andhra pradesh",
+        "current year", "cricket world cup winner", "president of india",
+        "chief minister of andhra pradesh", "major earthquake today",
+        "stock market today", "weather in vizianagaram"
+    ]
 
     for keyword in public_interest_keywords:
         if keyword in text.lower():
-            # Here we would typically use a real-time API for fact-checking
-            # Since we removed googlesearch, we'll simulate it with placeholder results
-            context = f"Based on placeholder search results for '{keyword}':\n"
-            context += "- Placeholder search result: Data for this fact.\n"
-            results[f"Real-time check for '{keyword}'"] = context
+            # Use SerpApi to get real-time search results
+            search_query = f"what is the {keyword}"
+            search_url = f"https://serpapi.com/search?q={search_query}&api_key={SERPAPI_API_KEY}"
 
-            if "chandrababu naidu" in text.lower() and "prime minister of india" in keyword:
-                results[f"Real-time check for '{keyword}'"] += "*Potentially Incorrect:* Current Prime Minister is likely Narendra Modi."
-            elif "vizianagaram" in text.lower() and "capital of andhra pradesh" in keyword:
-                results[f"Real-time check for '{keyword}'"] += "*Potentially Incorrect:* The capital is Amaravati."
-            elif str(datetime.datetime.now().year + 1) in text.lower() and "current year" in keyword:
-                results[f"Real-time check for '{keyword}'"] += f"*Potentially Incorrect:* The current year is {datetime.datetime.now().year}."
+            try:
+                response = requests.get(search_url)
+                data = response.json()
+
+                if 'organic_results' in data:
+                    context = f"Based on web search results for '{keyword}':\n"
+                    for result in data['organic_results'][:3]:  # Show top 3 results
+                        context += f"- {result['title']}: {result['link']}\n"
+                    results[f"Real-time check for '{keyword}'"] = context
+                else:
+                    results[f"Real-time check for '{keyword}'"] = "No relevant search results found."
+
+            except Exception as e:
+                results[f"Real-time check for '{keyword}'"] = f"Error during web search: {e}"
 
     if not results:
         results["Real-time Analysis"] = "No specific public interest keywords detected."
