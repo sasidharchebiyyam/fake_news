@@ -4,8 +4,9 @@ requests
 scikit-learn
 matplotlib
 wordcloud
+beautifulsoup4
 google-search-python
-BeautifulSoup
+
 
 
 
