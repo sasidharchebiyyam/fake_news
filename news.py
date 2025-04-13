@@ -3,7 +3,7 @@ import pandas as pd
 import requests
 import re
 import datetime
-from googlesearch import search  # pip install google-search-python
+from googlesearch import search  
 
 st.set_page_config(page_title="Real-time Fake News & Fact Checker", layout="wide")
 st.title("🌐 Real-time Fake News & Fact Checker")
