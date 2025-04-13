@@ -41,6 +41,27 @@ def fetch_news_from_url(url):
         return None
 
 # ----------------------- Real-time Fact Checking (Using SerpApi) -----------------------
+def get_correct_answer_from_google(query):
+    # Use SerpApi to get real-time search results
+    search_url = f"https://serpapi.com/search?q={query}&api_key={SERPAPI_API_KEY}"
+
+    try:
+        response = requests.get(search_url)
+        data = response.json()
+
+        if 'organic_results' in data:
+            top_result = data['organic_results'][0]  # Get the top search result
+            title = top_result['title']
+            link = top_result['link']
+            snippet = top_result['snippet']
+            return title, link, snippet
+        else:
+            return "No relevant search results found.", "", ""
+
+    except Exception as e:
+        return f"Error during web search: {e}", "", ""
+
+# ----------------------- Real-time Fact Checking -----------------------
 def check_real_time_facts(text):
     results = {}
     public_interest_keywords = [
@@ -52,24 +73,9 @@ def check_real_time_facts(text):
 
     for keyword in public_interest_keywords:
         if keyword in text.lower():
-            # Use SerpApi to get real-time search results
-            search_query = f"what is the {keyword}"
-            search_url = f"https://serpapi.com/search?q={search_query}&api_key={SERPAPI_API_KEY}"
-
-            try:
-                response = requests.get(search_url)
-                data = response.json()
-
-                if 'organic_results' in data:
-                    context = f"Based on web search results for '{keyword}':\n"
-                    for result in data['organic_results'][:3]:  # Show top 3 results
-                        context += f"- {result['title']}: {result['link']}\n"
-                    results[f"Real-time check for '{keyword}'"] = context
-                else:
-                    results[f"Real-time check for '{keyword}'"] = "No relevant search results found."
-
-            except Exception as e:
-                results[f"Real-time check for '{keyword}'"] = f"Error during web search: {e}"
+            # Get correct answer from Google using SerpApi
+            correct_answer_title, correct_answer_link, correct_answer_snippet = get_correct_answer_from_google(f"what is the {keyword}")
+            results[f"Real-time check for '{keyword}'"] = f"Correct Answer: {correct_answer_title} - {correct_answer_link}\n{correct_answer_snippet}"
 
     if not results:
         results["Real-time Analysis"] = "No specific public interest keywords detected."
@@ -99,6 +105,10 @@ if st.button("Analyze"):
         st.subheader("Fake News Detection Result:")
         if prediction == "FAKE":
             st.error(f"⚠ Likely FAKE with confidence: {conf:.2f}")
+            # Show the correct answer from Google if the news is fake
+            st.subheader("Correct Answer (from Google):")
+            for claim, result in real_time_check_results.items():
+                st.write(f"- *{claim}:* {result}")
         else:
             st.success(f"✅ Likely REAL with confidence: {conf:.2f}")
         st.write(f"Confidence Score: {conf:.2f}")
