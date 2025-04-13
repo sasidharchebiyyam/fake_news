@@ -2,8 +2,6 @@ import streamlit as st
 import pandas as pd
 import requests
 import re
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.linear_model import PassiveAggressiveClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 import datetime
@@ -15,34 +13,18 @@ st.write("Analyze text or URLs and attempt to verify public interest claims with
 st.info("This tool uses a basic fake news detection model and searches the web for real-time information to check facts. Accuracy of fact-checking depends on search results.")
 
 # ----------------------- Load Pre-trained Model -----------------------
-vectorizer = TfidfVectorizer(stop_words="english", max_df=0.7)
-internal_X_train = [
-    "Breaking news: Local school announces holiday extension.",
-    "Shocking report reveals alien sightings in remote areas.",
-    "Study shows that regular exercise improves mental health.",
-    "Controversial bill passed by the parliament amidst protests.",
-    "Scientists discover a new species of deep-sea creature.",
-    "The Prime Minister of India is Narendra Modi.",
-    "The capital of France is Paris.",
-    "Elephants are the largest land animals.",
-    "Water boils at 100 degrees Celsius.",
-    "The Earth is flat.",
-    "India won the Cricket World Cup in 2011.",
-    f"The current year is {datetime.datetime.now().year}.",
-    "Vizianagaram is the capital of Andhra Pradesh."
-]
-internal_y_train = ["REAL", "FAKE", "REAL", "REAL", "REAL", "REAL", "REAL", "REAL", "REAL", "FAKE", "REAL", "REAL", "FAKE"]
-X_train_vec = vectorizer.fit_transform(internal_X_train)
-model = PassiveAggressiveClassifier(max_iter=50)
-model.fit(X_train_vec, internal_y_train)
-accuracy = 0.88  # Placeholder
+# Placeholder for model prediction
+accuracy = 0.88  # Placeholder, update with your model accuracy.
 
 # ----------------------- Prediction -----------------------
 def predict_news(text):
-    input_vec = vectorizer.transform([text])
-    prediction = model.predict(input_vec)[0]
-    confidence = model.decision_function(input_vec)[0]
-    return prediction, abs(round(confidence, 2))
+    # Basic placeholder logic for fake news detection
+    fake_keywords = ["fake", "hoax", "scam", "rumor", "unverified"]
+    real_keywords = ["real", "verified", "true", "authentic"]
+    
+    prediction = "REAL" if any(word in text.lower() for word in real_keywords) else "FAKE"
+    confidence = 0.75  # Placeholder confidence score
+    return prediction, confidence
 
 # ----------------------- URL Text Extraction (Without BeautifulSoup) -----------------------
 def fetch_news_from_url(url):
