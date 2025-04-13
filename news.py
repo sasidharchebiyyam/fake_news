@@ -2,8 +2,6 @@ import streamlit as st
 import pandas as pd
 import requests
 import re
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
 import datetime
 from googlesearch import search  # pip install google-search-python
 
