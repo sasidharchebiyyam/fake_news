@@ -1,7 +1,11 @@
 streamlit
 pandas
 requests
-beautifulsoup4
 scikit-learn
 matplotlib
 wordcloud
+beautifulsoup4
+google-search-python
+
+
+
